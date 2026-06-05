@@ -1,0 +1,1100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Chart Analyzer — sagarkhanal.com</title>
+<meta name="description" content="Free AI-powered stock chart analyzer. Upload any chart and get instant Buy/Sell/Hold signals with technical analysis. Built by Sagar Khanal.">
+<meta property="og:title" content="AI Chart Analyzer by Sagar Khanal">
+<meta property="og:description" content="Upload a stock chart. Get instant AI buy/sell signals.">
+<meta property="og:url" content="https://sagarkhanal.com/chart-analyzer">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #f7f5f0;
+  --bg2:      #efece5;
+  --bg3:      #e8e4db;
+  --card:     #ffffff;
+  --ink:      #1a1814;
+  --ink2:     #6b6660;
+  --ink3:     #a09b95;
+  --border:   rgba(26,24,20,0.08);
+  --border2:  rgba(26,24,20,0.14);
+  --green:    #1a7a4a;
+  --green-bg: #edf7f1;
+  --green-bd: rgba(26,122,74,0.2);
+  --red:      #c0392b;
+  --red-bg:   #fdf2f1;
+  --red-bd:   rgba(192,57,43,0.2);
+  --amber:    #b8770a;
+  --amber-bg: #fdf8ee;
+  --amber-bd: rgba(184,119,10,0.2);
+  --accent:   #1a7a4a;
+  --r:        10px;
+  --r-lg:     16px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Geist', sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* ── NAV ── */
+nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(247,245,240,0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+  padding: 0 2rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav-logo {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.15rem;
+  color: var(--ink);
+  text-decoration: none;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.nav-logo span {
+  color: var(--accent);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  font-size: 0.82rem;
+  color: var(--ink2);
+  text-decoration: none;
+  font-weight: 400;
+  transition: color 0.15s;
+}
+.nav-link:hover { color: var(--ink); }
+
+.nav-back {
+  font-size: 0.82rem;
+  color: var(--ink2);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s;
+}
+.nav-back:hover { color: var(--ink); }
+
+/* ── HERO ── */
+.hero {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 64px 2rem 48px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 2rem;
+  align-items: end;
+  border-bottom: 1px solid var(--border);
+}
+
+.hero-eyebrow {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.live-dot {
+  width: 6px; height: 6px;
+  background: var(--accent);
+  border-radius: 50%;
+  animation: blink 2s ease-in-out infinite;
+}
+
+@keyframes blink {
+  0%,100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+.hero h1 {
+  font-family: 'Instrument Serif', serif;
+  font-size: clamp(2rem, 4vw, 3rem);
+  font-weight: 400;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+  margin-bottom: 0.75rem;
+}
+
+.hero h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+
+.hero-sub {
+  font-size: 0.9rem;
+  color: var(--ink2);
+  font-weight: 300;
+  max-width: 420px;
+  line-height: 1.7;
+}
+
+.hero-meta {
+  text-align: right;
+  font-size: 0.78rem;
+  color: var(--ink3);
+  line-height: 1.8;
+  white-space: nowrap;
+}
+
+.hero-meta strong {
+  font-weight: 500;
+  color: var(--ink2);
+  display: block;
+  font-size: 0.82rem;
+}
+
+/* ── MARKETS STRIP ── */
+.markets {
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 10px 2rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  max-width: 780px;
+  margin: 0 auto;
+}
+
+.markets-label {
+  font-size: 0.68rem;
+  color: var(--ink3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.market-tag {
+  font-size: 0.75rem;
+  color: var(--ink2);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.market-tag::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.5;
+}
+
+/* ── MAIN LAYOUT ── */
+.main {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 48px 2rem 80px;
+}
+
+/* ── TOOL CARD ── */
+.tool-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(26,24,20,0.04);
+}
+
+/* TOP CONTROLS */
+.controls-bar {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  background: var(--bg);
+}
+
+.controls-label {
+  font-size: 0.78rem;
+  color: var(--ink2);
+  font-weight: 500;
+  flex: 1;
+  min-width: 100px;
+}
+
+select {
+  font-family: 'Geist', sans-serif;
+  font-size: 0.78rem;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--border2);
+  border-radius: 7px;
+  padding: 6px 28px 6px 10px;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s;
+  background-image: url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L5 5L9 1' stroke='%236b6660' stroke-width='1.2' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+}
+select:hover, select:focus { border-color: var(--ink); }
+
+/* DROP ZONE */
+.drop-zone {
+  margin: 1.25rem;
+  border: 1.5px dashed var(--border2);
+  border-radius: var(--r);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg);
+  position: relative;
+}
+.drop-zone:hover, .drop-zone.drag-over {
+  border-color: var(--accent);
+  background: var(--green-bg);
+}
+
+.drop-icon {
+  width: 48px; height: 48px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.drop-h {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1rem;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+  font-style: italic;
+}
+
+.drop-s {
+  font-size: 0.78rem;
+  color: var(--ink3);
+}
+
+.drop-s a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+#file-input { display: none; }
+
+/* PREVIEW */
+#preview-wrap {
+  display: none;
+  margin: 0 1.25rem 1.25rem;
+  position: relative;
+}
+
+#preview-img {
+  width: 100%;
+  max-height: 360px;
+  object-fit: contain;
+  border-radius: var(--r);
+  border: 1px solid var(--border);
+  background: var(--bg);
+  display: block;
+}
+
+#change-btn {
+  position: absolute;
+  top: 10px; right: 10px;
+  background: rgba(247,245,240,0.9);
+  border: 1px solid var(--border2);
+  color: var(--ink2);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  backdrop-filter: blur(4px);
+}
+#change-btn:hover { color: var(--ink); border-color: var(--ink); }
+
+/* ANALYZE BUTTON */
+.analyze-wrap { padding: 0 1.25rem 1.25rem; }
+
+#analyze-btn {
+  width: 100%;
+  background: var(--ink);
+  color: #f7f5f0;
+  border: none;
+  border-radius: var(--r);
+  font-family: 'Geist', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 500;
+  padding: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  letter-spacing: 0.01em;
+}
+#analyze-btn:disabled {
+  background: var(--bg3);
+  color: var(--ink3);
+  cursor: not-allowed;
+}
+#analyze-btn:not(:disabled):hover {
+  background: #2d2a25;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(26,24,20,0.12);
+}
+
+/* SPINNER */
+#spinner {
+  display: none;
+  padding: 2rem 1.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--ink2);
+  font-size: 0.82rem;
+}
+
+.spin {
+  width: 18px; height: 18px;
+  border: 1.5px solid var(--border2);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ERROR */
+#error-box {
+  display: none;
+  margin: 0 1.25rem 1.25rem;
+  background: var(--red-bg);
+  border: 1px solid var(--red-bd);
+  color: var(--red);
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* RESULT */
+#result-box { display: none; }
+
+/* SIGNAL BANNER */
+.signal-banner {
+  padding: 1.25rem 1.5rem;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.signal-chip {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1.5rem;
+  font-style: italic;
+  padding: 6px 20px;
+  border-radius: 999px;
+  letter-spacing: -0.01em;
+}
+.chip-buy  { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-bd); }
+.chip-sell { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-bd); }
+.chip-hold { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-bd); }
+
+.signal-info { display: flex; flex-direction: column; gap: 2px; }
+
+.signal-ticker {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.signal-conf {
+  font-size: 0.75rem;
+  color: var(--ink2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.conf-pip {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.trend-tag {
+  margin-left: auto;
+  font-size: 0.72rem;
+  font-weight: 500;
+  padding: 4px 12px;
+  border-radius: 999px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.trend-up   { background: var(--green-bg); color: var(--green); }
+.trend-down { background: var(--red-bg);   color: var(--red); }
+.trend-side { background: var(--amber-bg); color: var(--amber); }
+
+/* METRICS ROW */
+.metrics-row {
+  display: flex;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.metric-cell {
+  flex: 1 0 100px;
+  padding: 0.9rem 1.25rem;
+  border-right: 1px solid var(--border);
+  min-width: 100px;
+}
+.metric-cell:last-child { border-right: none; }
+
+.m-label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--ink3);
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.m-value {
+  font-size: 0.88rem;
+  font-weight: 500;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ANALYSIS */
+.analysis-section {
+  padding: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+
+.tags-wrap {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.ptag {
+  font-size: 0.7rem;
+  padding: 2px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  color: var(--ink2);
+  background: var(--bg);
+}
+
+.ptag-green { background: var(--green-bg); color: var(--green); border-color: var(--green-bd); }
+.ptag-blue  { background: #eef4fe;         color: #2563eb;      border-color: rgba(37,99,235,0.2); }
+
+.analysis-heading {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--ink3);
+  font-weight: 500;
+  margin-bottom: 0.6rem;
+}
+
+.analysis-body {
+  font-size: 0.88rem;
+  color: var(--ink2);
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+.risk-strip {
+  display: none;
+  margin-top: 1rem;
+  padding: 10px 14px;
+  background: var(--amber-bg);
+  border: 1px solid var(--amber-bd);
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: var(--amber);
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  line-height: 1.55;
+}
+
+/* FOLLOW-UP */
+.followup-wrap {
+  padding: 1rem 1.5rem;
+  display: flex;
+  gap: 7px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.followup-label {
+  font-size: 0.72rem;
+  color: var(--ink3);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-weight: 500;
+  width: 100%;
+  margin-bottom: 2px;
+}
+
+.fq-btn {
+  font-family: 'Geist', sans-serif;
+  font-size: 0.75rem;
+  background: var(--bg);
+  border: 1px solid var(--border2);
+  color: var(--ink2);
+  padding: 5px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.fq-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--green-bg); }
+
+/* ── ABOUT SECTION ── */
+.about-section {
+  margin-top: 3rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.about-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.5rem;
+  transition: box-shadow 0.2s;
+}
+.about-card:hover { box-shadow: 0 2px 12px rgba(26,24,20,0.06); }
+
+.ac-icon {
+  width: 36px; height: 36px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.9rem;
+  font-size: 1rem;
+}
+
+.ac-title {
+  font-family: 'Instrument Serif', serif;
+  font-size: 1rem;
+  color: var(--ink);
+  margin-bottom: 0.4rem;
+}
+
+.ac-desc {
+  font-size: 0.78rem;
+  color: var(--ink3);
+  line-height: 1.65;
+}
+
+/* ── FOOTER ── */
+.footer-rule {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 0;
+}
+
+footer {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.footer-left {
+  font-family: 'Instrument Serif', serif;
+  font-size: 0.9rem;
+  color: var(--ink2);
+  font-style: italic;
+}
+
+.footer-left a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer-right {
+  font-size: 0.72rem;
+  color: var(--ink3);
+  text-align: right;
+  line-height: 1.6;
+}
+
+/* ── ANIMATIONS ── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.tool-card { animation: fadeUp 0.4s ease forwards; }
+
+@media (max-width: 600px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-meta { text-align: left; }
+  .about-section { grid-template-columns: 1fr; }
+  nav { padding: 0 1rem; }
+  .main { padding: 32px 1rem 60px; }
+  .hero { padding: 40px 1rem 32px; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="https://sagarkhanal.com" class="nav-logo">
+    Sagar <span>Khanal</span>
+  </a>
+  <div class="nav-right">
+    <a href="https://sagarkhanal.com" class="nav-back">
+      ← Back to portfolio
+    </a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div style="max-width:780px;margin:0 auto;border-bottom:1px solid var(--border);">
+  <div class="hero">
+    <div>
+      <div class="hero-eyebrow">
+        <span class="live-dot"></span>
+        AI Tool by Sagar Khanal
+      </div>
+      <h1>Read any chart.<br><em>Know when to trade.</em></h1>
+      <p class="hero-sub">Upload a stock chart screenshot and get instant AI-generated buy, sell, or hold signals — with entry zones, stop loss, and price targets. Works for NEPSE, ASX, crypto, and more.</p>
+    </div>
+    <div class="hero-meta">
+      <strong>sagarkhanal.com</strong>
+      /chart-analyzer<br>
+      Free · No signup<br>
+      Powered by Claude AI
+    </div>
+  </div>
+
+  <div class="markets" style="border-bottom:none;">
+    <span class="markets-label">Supports</span>
+    <span class="market-tag">NEPSE</span>
+    <span class="market-tag">ASX</span>
+    <span class="market-tag">NSE India</span>
+    <span class="market-tag">NYSE</span>
+    <span class="market-tag">Crypto</span>
+    <span class="market-tag">Forex</span>
+    <span class="market-tag">Commodities</span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- TOOL CARD -->
+  <div class="tool-card" id="analyzer">
+
+    <!-- CONTROLS -->
+    <div class="controls-bar">
+      <span class="controls-label">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="vertical-align:-2px;margin-right:5px;opacity:0.4"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Chart Analyzer
+      </span>
+      <select id="market-sel" aria-label="Market">
+        <option value="NEPSE">🇳🇵 NEPSE</option>
+        <option value="ASX">🇦🇺 ASX</option>
+        <option value="NSE India">🇮🇳 NSE India</option>
+        <option value="NYSE/NASDAQ">🇺🇸 NYSE/NASDAQ</option>
+        <option value="Crypto">₿ Crypto</option>
+        <option value="Forex">💱 Forex</option>
+        <option value="Other">🌐 Other</option>
+      </select>
+      <select id="tf-sel" aria-label="Timeframe">
+        <option value="Daily">Daily</option>
+        <option value="Weekly">Weekly</option>
+        <option value="Monthly">Monthly</option>
+        <option value="Hourly">Hourly</option>
+        <option value="15-min">15-min</option>
+      </select>
+      <select id="style-sel" aria-label="Analysis style">
+        <option value="full">Full Analysis</option>
+        <option value="technical">Technical</option>
+        <option value="candlestick">Candlestick</option>
+      </select>
+    </div>
+
+    <!-- DROP ZONE -->
+    <div class="drop-zone" id="drop-zone"
+      onclick="document.getElementById('file-input').click()"
+      ondragover="event.preventDefault();this.classList.add('drag-over')"
+      ondragleave="this.classList.remove('drag-over')"
+      ondrop="handleDrop(event)">
+      <div class="drop-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" style="opacity:0.45">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+          <polyline points="17 8 12 3 7 8"/>
+          <line x1="12" y1="3" x2="12" y2="15"/>
+        </svg>
+      </div>
+      <div class="drop-h">Drop your chart here</div>
+      <p class="drop-s">Drag & drop or <a onclick="event.stopPropagation()">browse file</a> — PNG, JPG, WebP</p>
+      <input type="file" id="file-input" accept="image/*" onchange="loadImage(event)">
+    </div>
+
+    <!-- PREVIEW -->
+    <div id="preview-wrap">
+      <img id="preview-img" alt="Uploaded chart">
+      <button id="change-btn" onclick="resetChart()">↺ Change</button>
+    </div>
+
+    <!-- ANALYZE -->
+    <div class="analyze-wrap">
+      <button id="analyze-btn" onclick="analyze()" disabled>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        Analyze Chart
+      </button>
+    </div>
+
+    <!-- SPINNER -->
+    <div id="spinner">
+      <div class="spin"></div>
+      <span id="spin-msg">Reading chart patterns...</span>
+    </div>
+
+    <!-- ERROR -->
+    <div id="error-box"></div>
+
+    <!-- RESULT -->
+    <div id="result-box">
+
+      <div class="signal-banner">
+        <div id="signal-chip" class="signal-chip">—</div>
+        <div class="signal-info">
+          <div id="ticker-disp" class="signal-ticker"></div>
+          <div class="signal-conf">
+            <span class="conf-pip" id="conf-pip"></span>
+            <span id="conf-disp"></span>
+          </div>
+        </div>
+        <div id="trend-tag" class="trend-tag"></div>
+      </div>
+
+      <div class="metrics-row" id="metrics-row"></div>
+
+      <div class="analysis-section">
+        <div class="tags-wrap" id="tags-wrap"></div>
+        <div class="analysis-heading">AI Analysis</div>
+        <div class="analysis-body" id="analysis-body"></div>
+        <div class="risk-strip" id="risk-strip">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;margin-top:2px"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          <span id="risk-text"></span>
+        </div>
+      </div>
+
+      <div class="followup-wrap">
+        <div class="followup-label">Ask a follow-up</div>
+        <div id="fq-buttons"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ABOUT CARDS -->
+  <div class="about-section">
+    <div class="about-card">
+      <div class="ac-icon">📊</div>
+      <div class="ac-title">How it works</div>
+      <p class="ac-desc">Upload any chart screenshot from TradingView, Merolagani, Sharesansar or your broker. The AI reads the price action, candlestick patterns, trend lines, and visible indicators — then delivers a clear signal.</p>
+    </div>
+    <div class="about-card">
+      <div class="ac-icon">🎯</div>
+      <div class="ac-title">What you get</div>
+      <p class="ac-desc">Buy/Sell/Hold signal · Confidence level · Support & resistance · Entry zone · Stop loss · Price target · Detected patterns · Detailed reasoning.</p>
+    </div>
+    <div class="about-card">
+      <div class="ac-icon">🇳🇵</div>
+      <div class="ac-title">Built for NEPSE</div>
+      <p class="ac-desc">Optimised for Nepal Stock Exchange charts but works with any global market — ASX, NSE India, NYSE, crypto and forex pairs.</p>
+    </div>
+    <div class="about-card">
+      <div class="ac-icon">⚡</div>
+      <div class="ac-title">About this tool</div>
+      <p class="ac-desc">Built by <strong>Sagar Khanal</strong> — IT & cybersecurity student, NEPSE investor, and developer. This tool combines my interest in stock trading with AI. Not financial advice.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<hr class="footer-rule">
+<footer>
+  <div class="footer-left">
+    Built by <a href="https://sagarkhanal.com">Sagar Khanal</a> · sagarkhanal.com/chart-analyzer
+  </div>
+  <div class="footer-right">
+    ⚠ For informational use only.<br>Not financial advice. Trade at your own risk.
+  </div>
+</footer>
+
+<script>
+let imageBase64 = null;
+let imageType   = null;
+
+function loadImage(e) {
+  const file = e.target.files[0];
+  if (file) readFile(file);
+}
+
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) readFile(file);
+}
+
+function readFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const url = ev.target.result;
+    imageBase64 = url.split(',')[1];
+    imageType   = file.type || 'image/jpeg';
+    document.getElementById('preview-img').src = url;
+    document.getElementById('drop-zone').style.display    = 'none';
+    document.getElementById('preview-wrap').style.display = 'block';
+    document.getElementById('analyze-btn').disabled       = false;
+    document.getElementById('result-box').style.display   = 'none';
+    document.getElementById('error-box').style.display    = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function resetChart() {
+  imageBase64 = null;
+  document.getElementById('drop-zone').style.display    = 'block';
+  document.getElementById('preview-wrap').style.display = 'none';
+  document.getElementById('analyze-btn').disabled       = true;
+  document.getElementById('result-box').style.display   = 'none';
+  document.getElementById('error-box').style.display    = 'none';
+  document.getElementById('file-input').value           = '';
+}
+
+async function analyze() {
+  if (!imageBase64) return;
+
+  const market = document.getElementById('market-sel').value;
+  const tf     = document.getElementById('tf-sel').value;
+  const style  = document.getElementById('style-sel').value;
+
+  document.getElementById('result-box').style.display = 'none';
+  document.getElementById('error-box').style.display  = 'none';
+  document.getElementById('spinner').style.display    = 'flex';
+  document.getElementById('analyze-btn').disabled     = true;
+
+  const steps = ['Reading chart patterns...','Identifying key levels...','Calculating signal...','Finalising recommendation...'];
+  let si = 0;
+  const ticker = setInterval(() => {
+    document.getElementById('spin-msg').textContent = steps[Math.min(si++, steps.length - 1)];
+  }, 1800);
+
+  const prompt = `You are a world-class technical analyst specialising in ${market} market. Analyse this ${tf} chart carefully.
+
+Return ONLY valid JSON, no markdown, no backticks:
+{
+  "signal": "BUY" or "SELL" or "HOLD",
+  "confidence": "High" or "Medium" or "Low",
+  "ticker": "symbol if visible else null",
+  "trend": "Uptrend" or "Downtrend" or "Sideways",
+  "support": "key support level or null",
+  "resistance": "key resistance level or null",
+  "entry_zone": "entry price zone or null",
+  "stop_loss": "stop loss level or null",
+  "target": "price target or null",
+  "rr_ratio": "risk/reward ratio or null",
+  "patterns": ["detected patterns"],
+  "indicators": ["indicator readings visible"],
+  "analysis": "4-6 sentence professional analysis explaining signal, key levels, patterns, and reasoning",
+  "risk": "one sentence specific risk warning"
+}
+
+${style === 'candlestick' ? 'Focus heavily on candlestick patterns.' : ''}
+${style === 'full' ? 'Include all visible indicators, volume, and full price action.' : ''}
+Market: ${market}, Timeframe: ${tf}.`;
+
+  try {
+    // ── OPTION A: Direct Anthropic API (works inside Claude.ai artifacts only)
+    // ── OPTION B: Replace URL below with your backend proxy URL when self-hosting
+    const API_URL = 'https://api.anthropic.com/v1/messages';
+    // If self-hosted, change to: const API_URL = 'https://YOUR-DOMAIN.com/api/analyze';
+
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1000,
+        messages: [{
+          role: 'user',
+          content: [
+            { type: 'image', source: { type: 'base64', media_type: imageType, data: imageBase64 } },
+            { type: 'text', text: prompt }
+          ]
+        }]
+      })
+    });
+
+    clearInterval(ticker);
+    const data  = await resp.json();
+    const raw   = (data.content || []).map(b => b.text || '').join('');
+    const clean = raw.replace(/```json|```/g, '').trim();
+    let r;
+    try { r = JSON.parse(clean); }
+    catch { throw new Error('Could not parse AI response. Try a clearer chart image.'); }
+    renderResult(r, market, tf);
+
+  } catch (err) {
+    clearInterval(ticker);
+    const eb = document.getElementById('error-box');
+    eb.innerHTML = '<strong>⚠ Error:</strong> ' + (err.message || 'Analysis failed. Please try again.');
+    eb.style.display = 'block';
+  } finally {
+    document.getElementById('spinner').style.display = 'none';
+    document.getElementById('analyze-btn').disabled  = false;
+  }
+}
+
+function renderResult(r, market, tf) {
+  /* Signal chip */
+  const chip = document.getElementById('signal-chip');
+  chip.textContent = r.signal || '—';
+  chip.className   = 'signal-chip chip-' + (r.signal === 'BUY' ? 'buy' : r.signal === 'SELL' ? 'sell' : 'hold');
+
+  /* Ticker + confidence */
+  document.getElementById('ticker-disp').textContent =
+    (r.ticker && r.ticker !== 'null') ? r.ticker + ' · ' + market + ' · ' + tf : market + ' · ' + tf;
+
+  const conf  = r.confidence || 'Medium';
+  const cCol  = conf === 'High' ? 'var(--green)' : conf === 'Low' ? 'var(--red)' : 'var(--amber)';
+  document.getElementById('conf-pip').style.background = cCol;
+  document.getElementById('conf-disp').textContent     = conf + ' Confidence';
+
+  /* Trend tag */
+  const tt = document.getElementById('trend-tag');
+  const tr = r.trend || '';
+  tt.textContent  = tr;
+  tt.className    = 'trend-tag ' + (tr === 'Uptrend' ? 'trend-up' : tr === 'Downtrend' ? 'trend-down' : 'trend-side');
+
+  /* Metrics */
+  const cells = [
+    { l:'Support',      v: r.support },
+    { l:'Resistance',   v: r.resistance },
+    { l:'Entry Zone',   v: r.entry_zone },
+    { l:'Stop Loss',    v: r.stop_loss },
+    { l:'Target',       v: r.target },
+    { l:'Risk/Reward',  v: r.rr_ratio },
+  ].filter(c => c.v && c.v !== 'null' && c.v !== null);
+
+  document.getElementById('metrics-row').innerHTML = cells.map(c => `
+    <div class="metric-cell">
+      <div class="m-label">${c.l}</div>
+      <div class="m-value">${c.v}</div>
+    </div>`).join('');
+
+  /* Tags */
+  const allTags = [
+    ...(r.patterns  || []).map(p => ({ t: p, cls: 'ptag-green' })),
+    ...(r.indicators|| []).map(i => ({ t: i, cls: 'ptag-blue'  })),
+  ];
+  document.getElementById('tags-wrap').innerHTML =
+    allTags.slice(0, 10).map(x => `<span class="ptag ${x.cls}">${x.t}</span>`).join('');
+
+  /* Analysis */
+  document.getElementById('analysis-body').textContent = r.analysis || '';
+
+  /* Risk */
+  const rs = document.getElementById('risk-strip');
+  if (r.risk && r.risk !== 'null') {
+    document.getElementById('risk-text').textContent = r.risk;
+    rs.style.display = 'flex';
+  } else {
+    rs.style.display = 'none';
+  }
+
+  /* Follow-up buttons */
+  const sig = r.signal || 'this';
+  const qs  = [
+    `What would invalidate this ${sig} signal on ${market}?`,
+    `Suggest position sizing for this trade`,
+    `What are the main risks in this setup?`,
+    `Are there alternative chart patterns here?`,
+  ];
+  document.getElementById('fq-buttons').innerHTML = qs.map(q =>
+    `<button class="fq-btn" onclick="openFollowUp('${q.replace(/'/g,"\\'")}')">↗ ${q}</button>`
+  ).join('');
+
+  document.getElementById('result-box').style.display = 'block';
+  document.getElementById('result-box').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function openFollowUp(q) {
+  window.open('https://claude.ai/new?q=' + encodeURIComponent(q), '_blank');
+}
+</script>
+
+</body>
+</html>
